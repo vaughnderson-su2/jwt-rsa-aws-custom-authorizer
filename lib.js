@@ -4,6 +4,8 @@ const jwksClient = require('jwks-rsa');
 const jwt = require('jsonwebtoken');
 const util = require('util');
 
+const email_claim = process.env.EMAIL_CLAIM;
+
 const getPolicyDocument = (effect, resource) => {
     const policyDocument = {
         Version: '2012-10-17', // default version
@@ -58,7 +60,9 @@ module.exports.authenticate = (params) => {
         .then((decoded)=> ({
             principalId: decoded.sub,
             policyDocument: getPolicyDocument('Allow', params.methodArn),
-            context: { scope: decoded.scope }
+            context: {
+                email: decoded?.[email_claim] ?? null, 
+                scope: decoded.scope }
         }));
 }
 
